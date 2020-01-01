@@ -1,26 +1,75 @@
 'use strict'
 
 const db = require('../server/db')
-const {User} = require('../server/db/models')
+const {User, Budget} = require('../server/db/models')
 
 async function seed() {
   await db.sync({force: true})
   console.log('db synced!')
 
   const users = await Promise.all([
-    User.create({
-      username: 'codypug',
-      email: 'cody@email.com',
-      password: '123'
-    }),
-    User.create({
-      username: 'murphydog',
-      email: 'murphy@email.com',
-      password: '123'
-    })
+    User.bulkCreate([
+      {
+        username: 'codypug',
+        email: 'cody@email.com',
+        password: '123'
+      },
+      {
+        username: 'murphydog',
+        email: 'murphy@email.com',
+        password: '123'
+      }
+    ])
+  ])
+  const budgets = await Promise.all([
+    Budget.bulkCreate([
+      {
+        userId: 1,
+        shopping: {
+          name: 'Shopping',
+          overallMonthly: 300,
+          subcategories: [
+            {name: 'Clothing', monthly: 100},
+            {name: 'Electronics', monthly: 50},
+            {name: 'Home', monthly: 100},
+            {name: 'Entertainment', monthly: 50}
+          ]
+        },
+        food: {
+          name: 'Food',
+          overallMonthly: 200,
+          subcategories: []
+        },
+        utilities: {
+          name: 'Utilities',
+          overallMonthly: 250,
+          subcategories: []
+        },
+        publicTransit: {
+          name: 'Public Transit',
+          overallMonthly: 150,
+          subcategories: []
+        },
+        personalTransport: {
+          name: 'Personal Transport',
+          overallMonthly: 200,
+          subcategories: []
+        }
+        // health: {},
+        // mortgage: {},
+        // rent: {},
+        // salary: {},
+        // taxes: {},
+        // savings: {},
+        // debts: {},
+        // investments: {},
+        // retirement: {}
+      }
+    ])
   ])
 
   console.log(`seeded ${users.length} users`)
+  console.log(`seeded ${budgets.length} budgets`)
   console.log(`seeded successfully`)
 }
 
