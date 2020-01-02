@@ -26,6 +26,29 @@ router.post('/:userId', async (req, res, next) => {
   }
 })
 
+// update category's overall monthly contribution if no subcategories added
+// REQUEST format:
+// {
+//  "category": "utilities",
+//  "overallMonthly": 200
+// }
+router.put('/:userId/category/update', async (req, res, next) => {
+  const categoryReq = req.body.category
+  const overallMonthly = req.body.overallMonthly
+  try {
+    const userId = req.params.userId
+    const currentUser = await User.findByPk(userId)
+    const currentBudget = await currentUser.getBudget()
+    let categoryData = currentBudget.dataValues[categoryReq] // budget data for specified category
+
+    categoryData.overallMonthly = overallMonthly
+
+    res.json(currentBudget)
+  } catch (error) {
+    next(error)
+  }
+})
+
 // add/update new spending subcategory(ies) and update overall monthly contributions (after validation on front end)
 // REQUEST format (stringify subcategories before request):
 // {
