@@ -26,26 +26,50 @@ router.post('/:userId', async (req, res, next) => {
   }
 })
 
-// add a new subcategory
-// REQUEST format:
+// add/update new spending subcategory(ies) and update overall monthly contributions (after validation on front end)
+// REQUEST format (stringify subcategories before request):
 // {
-// 	"category": "Utilities",
-// 	"subcategory": {"name": "Electricity", "monthly": 200}
+// 	"category": "utilities",
+// 	"subcategories": "[{\"name\": \"Electricity\", \"monthly\": 100}]"
 // }
-router.put('/:userId/add', async (req, res, next) => {
-  const category = req.body.category
-  const subcategory = req.body.subcategory
+router.put('/:userId/spending/update', async (req, res, next) => {
+  const categoryReq = req.body.category
+  const subcategoriesReq = JSON.parse(req.body.subcategories)
   try {
     const userId = req.params.userId
     const currentUser = await User.findByPk(userId)
     const currentBudget = await currentUser.getBudget()
-    let budgetData = currentBudget.dataValues
-    for (let key of Object.keys(budgetData)) {
-      if (budgetData[key].name === category) {
-        let subcategoriesArray = budgetData[key].subcategories
-        subcategoriesArray.push(subcategory)
+    let categoryData = currentBudget.dataValues[categoryReq] // budget data for specified category
+
+    // merge the subcategories if database array empty
+    if (categoryData.subcategories.length < 1) {
+      categoryData.subcategories = categoryData.subcategories.concat(
+        subcategoriesReq
+      )
+    } else {
+      // add to or update the database subcategories
+      for (let i = 0; i < subcategoriesReq.length; i++) {
+        let subReq = subcategoriesReq[i]
+        let subDataIdx = categoryData.subcategories.findIndex(
+          sub => sub.name === subReq.name
+        )
+
+        if (subDataIdx > -1) {
+          categoryData.subcategories[subDataIdx].monthly = subReq.monthly
+        } else {
+          categoryData.subcategories.push(subReq)
+        }
       }
     }
+
+    // add up category's overall monthly amount
+    categoryData.overallMonthly = categoryData.subcategories.reduce(
+      (sum, sub) => {
+        return sum + sub.monthly
+      },
+      0
+    )
+
     res.json(currentBudget)
   } catch (error) {
     next(error)
