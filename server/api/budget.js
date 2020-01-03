@@ -26,43 +26,28 @@ router.post('/:userId', async (req, res, next) => {
   }
 })
 
-// update category's overall monthly contribution if no subcategories added
-// REQUEST format:
-// {
-//  "category": "utilities",
-//  "overallMonthly": 200
-// }
-router.put('/:userId/category/update', async (req, res, next) => {
-  const categoryReq = req.body.category
-  const overallMonthly = req.body.overallMonthly
-  try {
-    const userId = req.params.userId
-    const currentUser = await User.findByPk(userId)
-    const currentBudget = await currentUser.getBudget()
-    let categoryData = currentBudget.dataValues[categoryReq] // budget data for specified category
-
-    categoryData.overallMonthly = overallMonthly
-
-    res.json(currentBudget)
-  } catch (error) {
-    next(error)
-  }
-})
-
 // add/update new spending subcategory(ies) and update overall monthly contributions (after validation on front end)
 // REQUEST format (stringify subcategories before request):
 // {
 // 	"category": "utilities",
 // 	"subcategories": "[{\"name\": \"Electricity\", \"monthly\": 100}]"
+// 	"overallMonthly": 200"
 // }
 router.put('/:userId/spending/update', async (req, res, next) => {
   const categoryReq = req.body.category
   const subcategoriesReq = JSON.parse(req.body.subcategories)
+  const overallMonthlyReq = req.body.overallMonthly
   try {
     const userId = req.params.userId
     const currentUser = await User.findByPk(userId)
     const currentBudget = await currentUser.getBudget()
     let categoryData = currentBudget.dataValues[categoryReq] // budget data for specified category
+
+    // update category's overall monthly contribution if no subcategories added/updated
+    if (!subcategoriesReq || subcategoriesReq.length < 1) {
+      categoryData.overallMonthly = overallMonthlyReq
+      return res.json(currentBudget)
+    }
 
     // merge the subcategories if database array empty
     if (categoryData.subcategories.length < 1) {
