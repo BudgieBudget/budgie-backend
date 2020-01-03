@@ -2,9 +2,14 @@ const Sequelize = require('sequelize')
 const db = require('../db')
 
 const Budget = db.define('budget', {
+  // SPENDING CATEGORIES
   shopping: {
     type: Sequelize.JSON,
     defaultValue: {name: 'Shopping', overallMonthly: 0, subcategories: []}
+  },
+  entertainment: {
+    type: Sequelize.JSON,
+    defaultValue: {name: 'Entertainment', overallMonthly: 0, subcategories: []}
   },
   food: {
     type: Sequelize.JSON,
@@ -30,6 +35,15 @@ const Budget = db.define('budget', {
     type: Sequelize.JSON,
     defaultValue: {name: 'Health', overallMonthly: 0, subcategories: []}
   },
+  pet: {
+    type: Sequelize.JSON,
+    defaultValue: {name: 'Pet', overallMonthly: 0, subcategories: []}
+  },
+  miscellaneous: {
+    type: Sequelize.JSON,
+    defaultValue: {name: 'Miscellaneous', overallMonthly: 0, subcategories: []}
+  },
+  // PROJECTION CATEGORIES
   mortgage: {
     type: Sequelize.JSON,
     defaultValue: {name: 'Mortgage', overallMonthly: 0, subcategories: []}
