@@ -15,14 +15,16 @@ install:
 before_script:
   - psql -c 'create database "budgie-test";' -U postgres # remember to change this name if you change it elsewhere (e.g. package.json)
 script:
-  - npm test             # test the code
+  - npm test # test the code
   - npm run build-client # make the bundle
-
-# before_deploy:
-#   - rm -rf node_modules # omit from the tarball, since we skip cleanup
-# deploy:
-#   skip_cleanup: true # prevents travis from deleting the build
-#   provider: heroku
-#   app: YOUR-HEROKU-APP-NAME-HERE # see README
-#   api_key:
-#     secure: YOUR-***ENCRYPTED***-API-KEY-HERE # see README
+before_deploy: # omit node_modules, since we set skip_cleanup below
+  - rm -rf node_modules
+deploy: # see README for details on these keys
+  # prevents travis from deleting the build
+  skip_cleanup: true
+  provider: heroku
+  # app should be your heroku app name; see README
+  app: budgie-budget-app
+  # the secure key indicates an encrypted value; see README
+  api_key:
+    secure: slD2N43tkyr0EE5XZqz+ZlnvA/6MlHaB8JhScHbw8DzwvnmvIjpi0D0jf/mK7Ho9HOrDTZbS5tyVD6pMHq0gh25z/onS+s+p1/gjp9M5Lie0umH6ca8h7Gd8cDm2xD/UKro0+9Q/PILYFnoToyV3hRjZ7l/2DTkwCCm7PCW8ZkeK7RZO78XhX8f0P2pHvC86/yg26A2uPI/me2kw6hHtjSEZq+NpBKvp76my0KO1JgGquo/PuKQ+PMTfEnU74pVm+TKMD0LL81cUAnXr9Rc9IDA6/pmlRas9O/JU1okQHiSqn1RTWvULeH2fBSIlYMm3SQIB7C0qkqylyoI8ktrcpicfB3tAGp934DXkPbnFB7AymG6GVtZiuU8Tir51REr2q9aPv4ESv8muTOH3YVb54p6GjjSkaqgiEtElGOzhDqiCoyrPJcYQka70xTru9+O55sFXRjIXC1aC56DLOuWEc6bCknSjWBgwqyG7aFpfAC2G0zx8vfAqv6lbNSmBSCwZfB/U9R8awJPR633w/3vPgBY+atObkKoL/mkvIOwOIY6GsW/pOZifDbF/lginsQ3zN0J/svx7VtX+68/jMOn8s2BJiZiE1Z+29FkGcci13faqQqDw11Fyyv6e3YE8RX7as7Dm3pSWT1IvF8eTDViRpSuYFmleqgzcQ6vtFwqTiPU=
